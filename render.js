@@ -19,7 +19,7 @@ var argv = require('yargs')
   .help('h').alias('h', 'help')
   .argv;
 
-morgan.token('file', function(req, res){ return path.basename(req.body.path_to_source); });
+morgan.token('file', function(req, res){ return path.basename(req.body.path_to_source ?? ''); });
 
 var router = express.Router();
 router.use(bodyParser.json({limit: '50mb'}));
