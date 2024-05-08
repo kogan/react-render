@@ -41,7 +41,7 @@ class RenderedComponent(object):
 
     def render_props_b64(self):
         if self.props:
-            encoded = base64.b64encode(json.dumps(self.props, cls=self.json_encoder).encode("utf-8")).decode('utf-8')
+            encoded = base64.b64encode(self.json_encoder(self.props).encode("utf-8")).decode('utf-8')
             return mark_safe("JSON.parse(atob('{0}'))".format(encoded))
         return '{}'
 
