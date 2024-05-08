@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.3.2'
+VERSION = '1.1'
 
 setup(
     name='react-render-client',
@@ -11,11 +11,11 @@ setup(
         'requests>=2,<3',
     ],
     description='Render and bundle React components from a Django application',
-    long_description='Documentation at https://github.com/mic159/react-render',
+    long_description='Documentation at https://github.com/kogan/react-render',
     author='Michael Cooper',
     author_email='mic159@gmail.com',
-    url='https://github.com/mic159/react-render',
-    download_url='https://github.com/mic159/react-render/tarball/{}'.format(VERSION),
+    url='https://github.com/kogan/react-render',
+    download_url='https://github.com/kogan/react-render/tarball/{}'.format(VERSION),
     keywords=['react', 'reactjs', 'django', 'isomorphic', 'templates'],
     license='MIT',
     classifiers=[
