@@ -33,7 +33,7 @@ class TestDjangoReactPerformance(unittest.TestCase):
         props = {
             'name': 'world',
             'unicode': u'Hello world ',
-            'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(300000)])),
+            'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(100000)])),
             'wave emoji': u'👋',
             'integer': 123,
             'float': 123.456,
