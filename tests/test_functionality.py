@@ -84,17 +84,14 @@ class TestDjangoReact(unittest.TestCase):
         self.assertEqual(component.render_props(), "JSON.parse('{\\u0022name\\u0022: \\u0022world!\\u0022}')")
 
 
-    @unittest.skip("Skipping this test")
-    def test_can_serialize_props_with_base64(self):
+    def test_can_serialize_props_with_b64(self):
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
             props={
-                'foo': 'sally'
-                # "unicode": "👍"
-            },
-            serialize_props=True
+                'name': 'Sally’ 吴 🥟s',
+            }
         )
-        self.assertEqual(component.render_props(), 'JSON.parse(atob("eyJmb28iOiJzYWxseSJ9"))')
+        self.assertEqual(component.render_props_b64(), "JSON.parse(atob('eyJuYW1lIjoiU2FsbHlcdTIwMTkgXHU1NDM0IFx1ZDgzZVx1ZGQ1ZnMifQ=='))")
 
 
     def test_can_serialize_datetime_values_in_props(self):
