@@ -109,7 +109,7 @@ class TestDjangoReact(unittest.TestCase):
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
             props={
                 'name': 'world!',
-                'datetime': datetime.datetime(2015, 1, 2, 3, 4, 5, tzinfo= timezone.utc),
+                'datetime': datetime.datetime(2015, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
                 'date': datetime.date(2015, 1, 2),
                 'time': datetime.time(3, 4, 5),
             }
