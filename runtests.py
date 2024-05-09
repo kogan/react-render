@@ -15,7 +15,7 @@ if __name__ == '__main__':
     from django.conf import settings
     from django.test.utils import get_runner
 
-    node = subprocess.Popen(['node', 'render.js'])
+    node = subprocess.Popen(['node', 'render-bin.js'])
     # Wait for service to start
     time.sleep(1)
 

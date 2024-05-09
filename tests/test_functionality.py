@@ -3,7 +3,7 @@ import json
 import os
 import sys
 import unittest
-from django.utils import timezone
+from datetime import timezone
 from react_render.django.render import render_component, RenderedComponent
 from react_render.exceptions import ComponentRenderingError, ComponentSourceFileNotFound
 
@@ -83,12 +83,26 @@ class TestDjangoReact(unittest.TestCase):
         self.assertEqual(component.props, {'name': 'world!'})
         self.assertEqual(component.render_props(), "JSON.parse('{\\u0022name\\u0022: \\u0022world!\\u0022}')")
 
+
+    @unittest.skip("Skipping this test")
+    def test_can_serialize_props_with_base64(self):
+        component = render_component(
+            PATH_TO_HELLO_WORLD_COMPONENT_JSX,
+            props={
+                'foo': 'sally'
+                # "unicode": "👍"
+            },
+            serialize_props=True
+        )
+        self.assertEqual(component.render_props(), 'JSON.parse(atob("eyJmb28iOiJzYWxseSJ9"))')
+
+
     def test_can_serialize_datetime_values_in_props(self):
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
             props={
                 'name': 'world!',
-                'datetime': datetime.datetime(2015, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+                'datetime': datetime.datetime(2015, 1, 2, 3, 4, 5, tzinfo= timezone.utc),
                 'date': datetime.date(2015, 1, 2),
                 'time': datetime.time(3, 4, 5),
             }
