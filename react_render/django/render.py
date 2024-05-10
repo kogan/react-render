@@ -41,7 +41,7 @@ class RenderedComponent(object):
 
     def render_props_bytes(self):
         if self.props:
-            encoded = list(orjson.dumps(self.props, default=self.json_encoder.__class__.default))
+            encoded = list(orjson.dumps(self.props, default=self.json_encoder.__self__.default))
             return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array({0})))".format(encoded))
         return '{}'
 
