@@ -7,7 +7,7 @@ setup(
     version=VERSION,
     packages=find_packages(exclude=['example', 'tests']),
     install_requires=[
-        'django>=1.6',
+        'django>=5.0',
         'requests>=2,<3',
     ],
     description='Render and bundle React components from a Django application',

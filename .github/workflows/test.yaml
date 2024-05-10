@@ -1,0 +1,23 @@
+name: Unit Tests
+
+on: [pull_request]
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
+    - name: Install and Prepare
+      run: |
+        pip install -e .
+        npm install
+        cd tests
+        npm install
+        npm run build
+    - name: Run Tests
+      run: |
+        python runtests.py

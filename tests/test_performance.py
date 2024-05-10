@@ -24,13 +24,30 @@ class TestDjangoReactPerformance(unittest.TestCase):
         render_component_times = []
         render_watched_component_times = []
         rendered_components = []
+        render_b64_prop_times = []
+        render_prop_times = []
 
         iteration_count = 25
+
+        # Generate a set of props with many types of data
+        props = {
+            'name': 'world',
+            'unicode': u'Hello world ',
+            'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(100000)])),
+            'wave emoji': u'👋',
+            'integer': 123,
+            'float': 123.456,
+            'array': [1, 2, 3, 4, 5],
+            'object': {
+                'key': 'value',
+                'key2': 'value2',
+            }
+        }
 
         for i in range(iteration_count):
             start = time.time()
             rendered_components.append(
-                render_component(path_to_component, props={'name': 'world'}, to_static_markup=True)
+                render_component(path_to_component, props=props, to_static_markup=True)
             )
             end = time.time()
             render_component_times.append(end - start)
@@ -38,10 +55,22 @@ class TestDjangoReactPerformance(unittest.TestCase):
         for i in range(iteration_count):
             start = time.time()
             rendered_components.append(
-                render_component(path_to_component, props={'name': 'world'}, to_static_markup=True)
+                render_component(path_to_component, props=props, to_static_markup=True)
             )
             end = time.time()
             render_watched_component_times.append(end - start)
+
+        for component in rendered_components:
+            start = time.time()
+            component.render_props_b64()
+            end = time.time()
+            render_b64_prop_times.append(end - start)
+
+        for component in rendered_components:
+            start = time.time()
+            component.render_props()
+            end = time.time()
+            render_prop_times.append(end - start)
 
         for component in rendered_components:
             self.assertEqual(str(component), '<span>Hello world</span>')
@@ -65,3 +94,23 @@ class TestDjangoReactPerformance(unittest.TestCase):
         print('Min: {value}'.format(value=min(render_watched_component_times)))
         print('Mean: {value}'.format(value=sum(render_watched_component_times) / len(render_watched_component_times)))
         print('Median: {value}'.format(value=median(render_watched_component_times)))
+
+        print('\nTotal time taken to render props {iteration_count} times: {value}'.format(
+            iteration_count=iteration_count,
+            value=sum(render_prop_times)
+        ))
+        print('Times: {value}'.format(value=render_prop_times))
+        print('Max: {value}'.format(value=max(render_prop_times)))
+        print('Min: {value}'.format(value=min(render_prop_times)))
+        print('Mean: {value}'.format(value=sum(render_prop_times) / len(render_prop_times)))
+        print('Median: {value}'.format(value=median(render_prop_times)))
+
+        print('\nTotal time taken to render props b64 {iteration_count} times: {value}'.format(
+            iteration_count=iteration_count,
+            value=sum(render_b64_prop_times)
+        ))
+        print('Times: {value}'.format(value=render_b64_prop_times))
+        print('Max: {value}'.format(value=max(render_b64_prop_times)))
+        print('Min: {value}'.format(value=min(render_b64_prop_times)))
+        print('Mean: {value}'.format(value=sum(render_b64_prop_times) / len(render_b64_prop_times)))
+        print('Median: {value}'.format(value=median(render_b64_prop_times)))
