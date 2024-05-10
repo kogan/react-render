@@ -9,6 +9,7 @@ setup(
     install_requires=[
         'django>=5.0',
         'requests>=2,<3',
+        'orjson==3.10',
     ],
     description='Render and bundle React components from a Django application',
     long_description='Documentation at https://github.com/kogan/react-render',
