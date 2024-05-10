@@ -91,7 +91,9 @@ class TestDjangoReact(unittest.TestCase):
                 'name': 'Sally’ 吴 🥟s',
             }
         )
-        self.assertEqual(component.render_props_b64(), "JSON.parse(atob('eyJuYW1lIjoiU2FsbHlcdTIwMTkgXHU1NDM0IFx1ZDgzZVx1ZGQ1ZnMifQ=='))")
+        rendered_bytes = component.render_props_bytes()
+        print(rendered_bytes)
+        self.assertEqual(rendered_bytes, "JSON.parse(atob('eyJuYW1lIjoiU2FsbHlcdTIwMTkgXHU1NDM0IFx1ZDgzZVx1ZGQ1ZnMifQ=='))")
 
 
     def test_length_of_props(self):
@@ -102,7 +104,7 @@ class TestDjangoReact(unittest.TestCase):
             }
         )
         self.assertEqual(len(component.render_props()), 98)
-        self.assertEqual(len(component.render_props_b64()), 80)
+        self.assertEqual(len(component.render_props_bytes()), 80)
 
     def test_can_serialize_datetime_values_in_props(self):
         component = render_component(

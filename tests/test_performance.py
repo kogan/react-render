@@ -24,7 +24,7 @@ class TestDjangoReactPerformance(unittest.TestCase):
         render_component_times = []
         render_watched_component_times = []
         rendered_components = []
-        render_b64_prop_times = []
+        render_bytes_prop_times = []
         render_prop_times = []
 
         iteration_count = 25
@@ -62,9 +62,9 @@ class TestDjangoReactPerformance(unittest.TestCase):
 
         for component in rendered_components:
             start = time.time()
-            component.render_props_b64()
+            component.render_props_bytes()
             end = time.time()
-            render_b64_prop_times.append(end - start)
+            render_bytes_prop_times.append(end - start)
 
         for component in rendered_components:
             start = time.time()
@@ -105,12 +105,12 @@ class TestDjangoReactPerformance(unittest.TestCase):
         print('Mean: {value}'.format(value=sum(render_prop_times) / len(render_prop_times)))
         print('Median: {value}'.format(value=median(render_prop_times)))
 
-        print('\nTotal time taken to render props b64 {iteration_count} times: {value}'.format(
+        print('\nTotal time taken to render props bytes {iteration_count} times: {value}'.format(
             iteration_count=iteration_count,
-            value=sum(render_b64_prop_times)
+            value=sum(render_bytes_prop_times)
         ))
-        print('Times: {value}'.format(value=render_b64_prop_times))
-        print('Max: {value}'.format(value=max(render_b64_prop_times)))
-        print('Min: {value}'.format(value=min(render_b64_prop_times)))
-        print('Mean: {value}'.format(value=sum(render_b64_prop_times) / len(render_b64_prop_times)))
-        print('Median: {value}'.format(value=median(render_b64_prop_times)))
+        print('Times: {value}'.format(value=render_bytes_prop_times))
+        print('Max: {value}'.format(value=max(render_bytes_prop_times)))
+        print('Min: {value}'.format(value=min(render_bytes_prop_times)))
+        print('Mean: {value}'.format(value=sum(render_bytes_prop_times) / len(render_bytes_prop_times)))
+        print('Median: {value}'.format(value=median(render_bytes_prop_times)))
