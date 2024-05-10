@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import base64
 import os
 import logging
-import json
+import orjson
 from django.contrib.staticfiles.storage import staticfiles_storage, HashedFilesMixin
 from django.contrib.staticfiles.finders import find as find_static
 from django.core.serializers.json import DjangoJSONEncoder
@@ -39,10 +39,10 @@ class RenderedComponent(object):
             return mark_safe("JSON.parse('{0}')".format(encoded))
         return '{}'
 
-    def render_props_b64(self):
+    def render_props_bytes(self):
         if self.props:
-            encoded = base64.b64encode(self.json_encoder(self.props).encode("utf-8")).decode('utf-8')
-            return mark_safe("JSON.parse(atob('{0}'))".format(encoded))
+            encoded = list(orjson.dumps(self.props, default=self.json_encoder.__class__.default))
+            return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array({0})))".format(encoded))
         return '{}'
 
 
