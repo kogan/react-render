@@ -41,8 +41,8 @@ class RenderedComponent(object):
 
     def render_props_bytes(self):
         if self.props:
-            encoded = list(orjson.dumps(self.props, default=self.json_encoder.__self__.default))
-            return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array({0})))".format(encoded))
+            encoded = orjson.dumps(self.props, default=self.json_encoder.__self__.default)
+            return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array('{0}'.match(/[\da-f]{{2}}/gi).map(h => parseInt(h, 16)))))".format(encoded.hex()))
         return '{}'
 
 
