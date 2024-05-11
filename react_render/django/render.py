@@ -45,6 +45,13 @@ class RenderedComponent(object):
             return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array('{0}'.match(/[\da-f]{{2}}/gi).map(h => parseInt(h, 16)))))".format(encoded.hex()))
         return '{}'
 
+    def render_props_b64(self):
+        if self.props:
+            self.json_encoder = DjangoJSONEncoder(separators=(',', ':')).encode
+            encoded = base64.b64encode(self.json_encoder(self.props).encode("utf-8")).decode('utf-8')
+            return mark_safe("JSON.parse(atob('{0}'))".format(encoded))
+        return '{}'
+
 
 def render_component(path_to_source, props=None, to_static_markup=False, json_encoder=None, timeout=TIMEOUT):
     if not os.path.isabs(path_to_source):

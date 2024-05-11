@@ -16,7 +16,19 @@ PATH_TO_HELLO_WORLD_WRAPPER_COMPONENT = os.path.join(COMPONENT_ROOT, 'HelloWorld
 PATH_TO_ERROR_THROWING_COMPONENT = os.path.join(COMPONENT_ROOT, 'ErrorThrowingComponent.js')
 PATH_TO_ES6 = os.path.join(COMPONENT_ROOT, 'ES6Test.js')
 PATH_TO_STATIC_FILE_FINDER_COMPONENT = 'test_app/StaticFileFinderComponent.js'
-
+big_props = {
+                'name': 'world',
+                'unicode': u'Hello world ',
+                'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(50000)])),
+                'wave emoji': u'👋',
+                'integer': 123,
+                'float': 123.456,
+                'array': [1, 2, 3, 4, 5],
+                'object': {
+                    'key': 'value',
+                    'key2': 'value2',
+                }
+            }
 
 class TestDjangoReact(unittest.TestCase):
     def test_can_render_a_component_in_js(self):
@@ -97,50 +109,26 @@ class TestDjangoReact(unittest.TestCase):
         self.assertEqual(rendered_bytes, "JSON.parse(new TextDecoder().decode(new Uint8Array('7b226e616d65223a2253616c6c79e2809920e590b420f09fa59f73227d'.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)))))")
 
 
-    def test_length_of_bytes_props(self):
-        props = {
-                'name': 'world',
-                'unicode': u'Hello world ',
-                'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(50000)])),
-                'wave emoji': u'👋',
-                'integer': 123,
-                'float': 123.456,
-                'array': [1, 2, 3, 4, 5],
-                'object': {
-                    'key': 'value',
-                    'key2': 'value2',
-                }
-            }
+    def test_length_of_props_less_than_110p(self):
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
-            props = props
+            props = big_props
         )
-        print(len(json.dumps(props, separators=(',' , ':'))))
-        self.assertLessEqual(len(component.render_props())/len(json.dumps(props, separators=(',' , ':'))),1.1)
-        self.assertLessEqual(len(component.render_props_bytes())/len(json.dumps(props, separators=(',' , ':'))),2)
-        self.assertLessEqual(len(component.render_props_b64())/len(json.dumps(props, separators=(',' , ':'))),2)
+        self.assertLessEqual(len(component.render_props())/len(json.dumps(big_props, separators=(',' , ':'))),1.1)
 
-    def test_length_of_b64_props(self):
-        props = {
-                'name': 'world',
-                'unicode': u'Hello world ',
-                'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(50000)])),
-                'wave emoji': u'👋',
-                'integer': 123,
-                'float': 123.456,
-                'array': [1, 2, 3, 4, 5],
-                'object': {
-                    'key': 'value',
-                    'key2': 'value2',
-                }
-            }
+    def test_length_of_bytes_props_less_than_150p(self):
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
-            props = props
+            props = big_props
         )
-        print(len(json.dumps(props, separators=(',' , ':'))))
-        self.assertLessEqual(len(component.render_props())/len(json.dumps(props, separators=(',' , ':'))),1.1)
-        self.assertLessEqual(len(component.render_props_b64())/len(json.dumps(props, separators=(',' , ':'))),2)
+        self.assertLessEqual(len(component.render_props_bytes())/len(json.dumps(big_props, separators=(',' , ':'))),1.5)
+
+    def test_length_of_b64_props_less_than_150p(self):
+        component = render_component(
+            PATH_TO_HELLO_WORLD_COMPONENT_JSX,
+            props = big_props
+        )
+        self.assertLessEqual(len(component.render_props_b64())/len(json.dumps(big_props, separators=(',' , ':'))),1.5)
 
     def test_can_serialize_datetime_values_in_props(self):
         component = render_component(
