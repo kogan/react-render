@@ -1,5 +1,6 @@
 import datetime
 import json
+import orjson
 import os
 import sys
 import unittest
@@ -84,7 +85,7 @@ class TestDjangoReact(unittest.TestCase):
         self.assertEqual(component.render_props(), "JSON.parse('{\\u0022name\\u0022: \\u0022world!\\u0022}')")
 
 
-    def test_can_serialize_props_with_b64(self):
+    def test_can_serialize_props_with_hex_bytes(self):
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
             props={
@@ -93,18 +94,53 @@ class TestDjangoReact(unittest.TestCase):
         )
         rendered_bytes = component.render_props_bytes()
         print(rendered_bytes)
-        self.assertEqual(rendered_bytes, "JSON.parse(atob('eyJuYW1lIjoiU2FsbHlcdTIwMTkgXHU1NDM0IFx1ZDgzZVx1ZGQ1ZnMifQ=='))")
+        self.assertEqual(rendered_bytes, "JSON.parse(new TextDecoder().decode(new Uint8Array('7b226e616d65223a2253616c6c79e2809920e590b420f09fa59f73227d'.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)))))")
 
 
-    def test_length_of_props(self):
+    def test_length_of_bytes_props(self):
+        props = {
+                'name': 'world',
+                'unicode': u'Hello world ',
+                'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(50000)])),
+                'wave emoji': u'👋',
+                'integer': 123,
+                'float': 123.456,
+                'array': [1, 2, 3, 4, 5],
+                'object': {
+                    'key': 'value',
+                    'key2': 'value2',
+                }
+            }
         component = render_component(
             PATH_TO_HELLO_WORLD_COMPONENT_JSX,
-            props={
-                'name': 'Sally’ 吴 🥟s',
-            }
+            props = props
         )
-        self.assertEqual(len(component.render_props()), 98)
-        self.assertEqual(len(component.render_props_bytes()), 80)
+        print(len(json.dumps(props, separators=(',' , ':'))))
+        self.assertLessEqual(len(component.render_props())/len(json.dumps(props, separators=(',' , ':'))),1.1)
+        self.assertLessEqual(len(component.render_props_bytes())/len(json.dumps(props, separators=(',' , ':'))),2)
+        self.assertLessEqual(len(component.render_props_b64())/len(json.dumps(props, separators=(',' , ':'))),2)
+
+    def test_length_of_b64_props(self):
+        props = {
+                'name': 'world',
+                'unicode': u'Hello world ',
+                'REALLY_LONG_STRING': format(u' '.join([u'War and Peace and ' for i in range(50000)])),
+                'wave emoji': u'👋',
+                'integer': 123,
+                'float': 123.456,
+                'array': [1, 2, 3, 4, 5],
+                'object': {
+                    'key': 'value',
+                    'key2': 'value2',
+                }
+            }
+        component = render_component(
+            PATH_TO_HELLO_WORLD_COMPONENT_JSX,
+            props = props
+        )
+        print(len(json.dumps(props, separators=(',' , ':'))))
+        self.assertLessEqual(len(component.render_props())/len(json.dumps(props, separators=(',' , ':'))),1.1)
+        self.assertLessEqual(len(component.render_props_b64())/len(json.dumps(props, separators=(',' , ':'))),2)
 
     def test_can_serialize_datetime_values_in_props(self):
         component = render_component(
