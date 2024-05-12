@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import os
 import logging
+import orjson
 from django.contrib.staticfiles.storage import staticfiles_storage, HashedFilesMixin
 from django.contrib.staticfiles.finders import find as find_static
 from django.core.serializers.json import DjangoJSONEncoder
@@ -13,6 +14,7 @@ from react_render.core import DEFAULT_SERVICE_URL
 
 SERVICE_URL = getattr(settings, 'REACT_SERVICE_URL', DEFAULT_SERVICE_URL)
 FAIL_SAFE = getattr(settings, 'REACT_FAIL_SAFE', False)
+TIMEOUT = getattr(settings, 'REACT_TIMEOUT', 10)
 
 log = logging.getLogger('react-render-client')
 
@@ -36,8 +38,14 @@ class RenderedComponent(object):
             return mark_safe("JSON.parse('{0}')".format(encoded))
         return '{}'
 
+    def render_props_bytes(self):
+        if self.props:
+            encoded = orjson.dumps(self.props, default=self.json_encoder.__self__.default)
+            return mark_safe("JSON.parse(new TextDecoder().decode(new Uint8Array('{0}'.match(/[\da-f]{{2}}/gi).map(h => parseInt(h, 16)))))".format(encoded.hex()))
+        return '{}'
 
-def render_component(path_to_source, props=None, to_static_markup=False, json_encoder=None):
+
+def render_component(path_to_source, props=None, to_static_markup=False, json_encoder=None, timeout=TIMEOUT):
     if not os.path.isabs(path_to_source):
         # If its using the manifest staticfiles storage, to the hashed name.
         # eg. js/hello.js -> js/hello.d0bf07ff5f07.js
@@ -47,15 +55,28 @@ def render_component(path_to_source, props=None, to_static_markup=False, json_en
             except ValueError:
                 # Couldn't find it.
                 pass
-        # Now resolve it to the absolute path using the finders
-        path_to_source = find_static(path_to_source) or path_to_source
+
+        # first, attempt to resolve at STATIC_ROOT if the file was collected
+        abs_path = os.path.join(settings.STATIC_ROOT or '', path_to_source)
+        if os.path.exists(abs_path):
+            path_to_source = abs_path
+        else:
+            # Otherwise, resolve it using finders
+            path_to_source = find_static(path_to_source) or path_to_source
 
     if json_encoder is None:
         json_encoder = DjangoJSONEncoder().encode
 
     try:
-        html = render_core(path_to_source, props, to_static_markup, json_encoder, service_url=SERVICE_URL)
-    except:
+        html = render_core(
+            path_to_source,
+            props,
+            to_static_markup,
+            json_encoder,
+            service_url=SERVICE_URL,
+            timeout=timeout,
+        )
+    except Exception:
         if not FAIL_SAFE:
             raise
         log.exception('Error while rendering %s', path_to_source)
